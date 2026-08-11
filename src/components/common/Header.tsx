@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Wallet, ShoppingBag, Sun, Moon, Smartphone, QrCode, RefreshCw, LogOut } from 'lucide-react';
+import { Wallet, ShoppingBag, Sun, Moon, Smartphone, QrCode, RefreshCw, LogOut, X } from 'lucide-react';
 
 interface HeaderProps {
   setActiveTab: (tab: string) => void;
@@ -108,43 +108,43 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenCart, onOpen
 
       {/* Header Actions & Profile */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {/* Cart Icon (for Employee & Guest) */}
-        {(currentUser.role === 'employee' || currentUser.role === 'guest') && (
-          <button
-            onClick={onOpenCart}
-            style={{
-              position: 'relative',
-              padding: '8px',
-              borderRadius: '10px',
-              background: 'var(--bg-tertiary)',
-              color: 'var(--text-primary)'
-            }}
-            aria-label="View Cart"
-          >
-            <ShoppingBag size={20} />
-            {cartCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-4px',
-                background: 'var(--accent-danger)',
-                color: '#ffffff',
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-                {cartCount}
-              </span>
-            )}
-          </button>
-        )}
+        {/* Shopping Cart Drawer Trigger (Requirement #5) */}
+        <button
+          onClick={onOpenCart}
+          style={{
+            position: 'relative',
+            background: 'var(--bg-tertiary)',
+            color: 'var(--text-primary)',
+            padding: '8px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ShoppingBag size={20} />
+          {cartCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              background: 'var(--accent-primary)',
+              color: '#ffffff',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              width: '18px',
+              height: '18px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              {cartCount}
+            </span>
+          )}
+        </button>
 
-        {/* User Persona & Role Selector button */}
+        {/* Profile Avatar Button */}
         <button
           onClick={() => setShowProfileMenu(!showProfileMenu)}
           style={{
@@ -169,23 +169,61 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenCart, onOpen
         </button>
       </div>
 
+      {/* Transparent Click-Outside Backdrop */}
+      {showProfileMenu && (
+        <div
+          onClick={() => setShowProfileMenu(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 190,
+            background: 'transparent'
+          }}
+        />
+      )}
+
       {/* Profile / Quick Role Switcher Dropdown */}
       {showProfileMenu && (
         <div style={{
           position: 'absolute',
           top: '60px',
           right: '16px',
-          width: '260px',
+          width: '270px',
           background: 'var(--bg-card)',
           borderRadius: 'var(--radius-md)',
           boxShadow: 'var(--shadow-xl)',
           border: '1px solid var(--border-color)',
-          padding: '12px',
+          padding: '14px',
           zIndex: 200,
         }}>
-          <div style={{ paddingBottom: '10px', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
-            <p style={{ fontWeight: 700, margin: 0, fontSize: '0.9rem' }}>{currentUser.name}</p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>{currentUser.email}</p>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingBottom: '10px',
+            borderBottom: '1px solid var(--border-color)',
+            marginBottom: '8px'
+          }}>
+            <div>
+              <p style={{ fontWeight: 700, margin: 0, fontSize: '0.9rem' }}>{currentUser.name}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>{currentUser.email}</p>
+            </div>
+            <button
+              onClick={() => setShowProfileMenu(false)}
+              style={{
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                borderRadius: '50%',
+                width: '28px',
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="Close Profile Menu"
+            >
+              <X size={16} />
+            </button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -255,6 +293,22 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab, onOpenCart, onOpen
               }}
             >
               <RefreshCw size={16} /> Reset All Dummy Data
+            </button>
+
+            <button
+              onClick={() => setShowProfileMenu(false)}
+              style={{
+                width: '100%',
+                padding: '8px',
+                borderRadius: '8px',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                marginTop: '4px'
+              }}
+            >
+              Close Menu
             </button>
           </div>
         </div>
