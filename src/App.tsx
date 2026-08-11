@@ -14,13 +14,20 @@ import { LoginView } from './components/auth/LoginView';
 import type { Order } from './types';
 
 const MainContent: React.FC = () => {
-  const { isMobileFrame, activeTicket, setActiveTicket } = useApp();
+  const { isMobileFrame, activeTicket, setActiveTicket, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState<string>('menu');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isGuestVoucherOpen, setIsGuestVoucherOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedTicketModal, setSelectedTicketModal] = useState<Order | null>(null);
+
+  // Automatic Fail-Safe Guard: Non-admin users are automatically redirected to Menu if on Admin tab!
+  React.useEffect(() => {
+    if (currentUser.role !== 'admin' && activeTab === 'admin') {
+      setActiveTab('menu');
+    }
+  }, [currentUser, activeTab]);
 
   const activeTicketToDisplay = activeTicket || selectedTicketModal;
 
