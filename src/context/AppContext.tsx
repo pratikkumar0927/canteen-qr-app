@@ -233,25 +233,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Vendor QR Code Scanner Redemption Handler (Requirement #7: Redeem only ONCE)
   const redeemOrder = (rawInput: string): { success: boolean; message: string; order?: Order } => {
-    let ticketCode = rawInput.trim();
+    const cleanInput = rawInput.trim();
+    let ticketCode = cleanInput;
     let payloadData: any = null;
 
-    // Parse embedded QR JSON payload if present
-    if (rawInput.includes('"tCode"')) {
-      try {
-        payloadData = JSON.parse(rawInput);
-        if (payloadData.tCode) {
-          ticketCode = payloadData.tCode;
-        }
-      } catch (e) {
-        // Fallback to raw string
+    // Robust JSON payload parsing for camera scanned QR strings
+    try {
+      if (cleanInput.startsWith('{') && cleanInput.endsWith('}')) {
+        payloadData = JSON.parse(cleanInput);
+      } else if (cleanInput.includes('{') && cleanInput.includes('}')) {
+        const firstBrace = cleanInput.indexOf('{');
+        const lastBrace = cleanInput.lastIndexOf('}');
+        const jsonSubstring = cleanInput.substring(firstBrace, lastBrace + 1);
+        payloadData = JSON.parse(jsonSubstring);
       }
+    } catch (e) {
+      console.warn('Scanned string is not JSON payload:', cleanInput);
+    }
+
+    if (payloadData && payloadData.tCode) {
+      ticketCode = payloadData.tCode;
     }
 
     let targetOrder = orders.find(o => o.ticketCode.toUpperCase() === ticketCode.toUpperCase());
 
     // Universal Cross-Device Handling: If order was created on another device/browser, register it dynamically
-    if (!targetOrder && payloadData) {
+    if (!targetOrder && payloadData && payloadData.tCode) {
       targetOrder = {
         id: `ord_${Date.now()}`,
         userId: 'ext_' + Date.now(),

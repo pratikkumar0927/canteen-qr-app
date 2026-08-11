@@ -1,15 +1,14 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Order } from '../../types';
-import { X, CheckCircle2, AlertTriangle, Copy, ScanLine } from 'lucide-react';
+import { X, CheckCircle2, AlertTriangle, Copy } from 'lucide-react';
 
 interface TicketModalProps {
   order: Order | null;
   onClose: () => void;
-  onOpenVendorScanner?: () => void;
 }
 
-export const TicketModal: React.FC<TicketModalProps> = ({ order, onClose, onOpenVendorScanner }) => {
+export const TicketModal: React.FC<TicketModalProps> = ({ order, onClose }) => {
   if (!order) return null;
 
   const isRedeemed = order.status === 'REDEEMED';
@@ -189,36 +188,15 @@ export const TicketModal: React.FC<TicketModalProps> = ({ order, onClose, onOpen
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
-            {!isRedeemed && onOpenVendorScanner && (
-              <button
-                onClick={() => { onClose(); onOpenVendorScanner(); }}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'var(--accent-success)',
-                  color: '#ffffff',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <ScanLine size={16} /> Test Scan at Vendor Counter
-              </button>
-            )}
-
             <button
               onClick={onClose}
               style={{
-                flex: 1,
-                padding: '10px',
+                width: '100%',
+                padding: '12px',
                 borderRadius: 'var(--radius-md)',
                 background: 'var(--bg-tertiary)',
                 color: 'var(--text-primary)',
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: '0.85rem'
               }}
             >

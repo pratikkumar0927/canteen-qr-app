@@ -78,11 +78,6 @@ const MainContent: React.FC = () => {
             setActiveTicket(null);
             setSelectedTicketModal(null);
           }}
-          onOpenVendorScanner={() => {
-            setActiveTicket(null);
-            setSelectedTicketModal(null);
-            setActiveTab('vendor');
-          }}
         />
 
         {/* Employee Wallet Statement Modal (Requirement #4) */}
