@@ -232,9 +232,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // Vendor QR Code Scanner Redemption Handler (Requirement #7: Redeem only ONCE)
-  const redeemOrder = (ticketCode: string) => {
-    const cleanCode = ticketCode.trim().toUpperCase();
-    const targetOrder = orders.find(o => o.ticketCode.toUpperCase() === cleanCode || o.id === ticketCode);
+  const redeemOrder = (rawInput: string): { success: boolean; message: string; order?: Order } => {
+    let ticketCode = rawInput.trim();
+    let payloadData: any = null;
+
+    // Parse embedded QR JSON payload if present
+    if (rawInput.includes('"tCode"')) {
+      try {
+        payloadData = JSON.parse(rawInput);
+        if (payloadData.tCode) {
+          ticketCode = payloadData.tCode;
+        }
+      } catch (e) {
+        // Fallback to raw string
+      }
+    }
+
+    let targetOrder = orders.find(o => o.ticketCode.toUpperCase() === ticketCode.toUpperCase());
+
+    // Universal Cross-Device Handling: If order was created on another device/browser, register it dynamically
+    if (!targetOrder && payloadData) {
+      targetOrder = {
+        id: `ord_${Date.now()}`,
+        userId: 'ext_' + Date.now(),
+        userName: payloadData.uName || 'Customer',
+        userRole: payloadData.uRole || 'employee',
+        items: [{ itemId: 'ext_item', name: payloadData.items || 'Food Order Items', price: payloadData.amt || 0, quantity: 1, imageUrl: '', isVeg: true }],
+        totalAmount: payloadData.amt || 0,
+        status: 'ACTIVE',
+        createdAt: payloadData.created || new Date().toISOString(),
+        ticketCode: payloadData.tCode
+      };
+    }
 
     if (!targetOrder) {
       return {
@@ -269,7 +298,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       redeemedByVendor: currentUser.name || 'Vendor Counter 1',
     };
 
-    setOrders(prev => prev.map(o => o.id === targetOrder.id ? updatedOrder : o));
+    setOrders(prev => {
+      const exists = prev.some(o => o.ticketCode.toUpperCase() === updatedOrder.ticketCode.toUpperCase());
+      if (exists) {
+        return prev.map(o => o.ticketCode.toUpperCase() === updatedOrder.ticketCode.toUpperCase() ? updatedOrder : o);
+      }
+      return [updatedOrder, ...prev];
+    });
 
     return {
       success: true,

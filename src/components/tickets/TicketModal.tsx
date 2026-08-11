@@ -107,9 +107,16 @@ export const TicketModal: React.FC<TicketModalProps> = ({ order, onClose, onOpen
             filter: isRedeemed ? 'grayscale(100%)' : 'none'
           }}>
             <QRCodeSVG
-              value={order.ticketCode}
+              value={JSON.stringify({
+                tCode: order.ticketCode,
+                uName: order.userName,
+                uRole: order.userRole,
+                items: order.items.map(i => `${i.quantity}x ${i.name}`).join(', '),
+                amt: order.totalAmount,
+                created: order.createdAt
+              })}
               size={180}
-              level="H"
+              level="M"
               includeMargin={true}
             />
             {isRedeemed && (
