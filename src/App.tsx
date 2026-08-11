@@ -39,14 +39,20 @@ const MainContent: React.FC = () => {
         <Header
           setActiveTab={setActiveTab}
           onOpenCart={() => setIsCartOpen(true)}
-          onOpenLogin={() => setIsLoginOpen(true)}
+          onOpenLogin={() => {
+            setActiveTab('menu');
+            setIsLoginOpen(true);
+          }}
           onOpenWallet={() => setIsWalletOpen(true)}
         />
 
         {/* Scrollable View Content */}
         <main style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
           {isLoginOpen ? (
-            <LoginView onLoginSuccess={() => setIsLoginOpen(false)} />
+            <LoginView onLoginSuccess={() => {
+              setActiveTab('menu');
+              setIsLoginOpen(false);
+            }} />
           ) : (
             <>
               {activeTab === 'menu' && <FoodMenu />}
